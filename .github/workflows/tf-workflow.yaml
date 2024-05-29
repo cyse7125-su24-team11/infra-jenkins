@@ -9,7 +9,7 @@ on:
 
 jobs:
   build:
-
+    name: Terraform Validate
     runs-on: ubuntu-latest
 
     strategy:

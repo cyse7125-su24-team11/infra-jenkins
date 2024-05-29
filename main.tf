@@ -24,11 +24,14 @@ resource "aws_subnet" "private_subnet" {
   vpc_id     = aws_vpc.vpc.id
   cidr_block = var.private_subnet_cidr_block
   depends_on = [aws_vpc.vpc]
+  tags = {
+    Name = var.private_subnet_name
+  }
 }
 resource "aws_internet_gateway" "gw" {
   vpc_id = aws_vpc.vpc.id
   tags = {
-    Name = var.private_subnet_name
+    Name = var.internet_gw
   }
 }
 resource "aws_route_table" "route_table" {
@@ -41,29 +44,29 @@ resource "aws_route_table" "route_table" {
   tags = {
     Name = var.route_table_name
   }
-	depends_on = [ aws_internet_gateway.gw ]
+  depends_on = [aws_internet_gateway.gw]
 }
 resource "aws_route_table_association" "make_public" {
   subnet_id      = aws_subnet.public_subnet.id
   route_table_id = aws_route_table.route_table.id
-	depends_on = [ aws_subnet.public_subnet, aws_route_table.route_table ]
+  depends_on     = [aws_subnet.public_subnet, aws_route_table.route_table]
 }
 resource "aws_security_group" "sg" {
-  name        = var.sg_name
-  vpc_id      = aws_vpc.vpc.id
+  name   = var.sg_name
+  vpc_id = aws_vpc.vpc.id
 
-	ingress {
-    protocol    = var.tcp_protocol
-		cidr_blocks = [var.internet_gateway]
-		from_port   = var.https_default_port
-		to_port     = var.https_default_port
-	}
-	# ingress {
+  # ingress {
   #   protocol    = var.tcp_protocol
-	# 	cidr_blocks = [var.internet_gateway]
-	# 	from_port   = 22
-	# 	to_port     = 22
-	# }
+  # 	cidr_blocks = [var.internet_gateway]
+  # 	from_port   = 22
+  # 	to_port     = 22
+  # }
+  ingress {
+    protocol    = var.tcp_protocol
+    cidr_blocks = [var.internet_gateway]
+    from_port   = var.https_default_port
+    to_port     = var.https_default_port
+  }
   ingress {
     from_port   = var.app_port
     to_port     = var.app_port
@@ -76,21 +79,24 @@ resource "aws_security_group" "sg" {
     protocol    = var.tcp_protocol
     cidr_blocks = [var.internet_gateway]
   }
-	egress {
-		from_port         = var.https_default_port
-		to_port           = var.https_default_port
-		protocol          = var.tcp_protocol
-	}
-	egress {
-		from_port         = var.app_port
-		to_port           = var.app_port
-		protocol          = var.tcp_protocol
-	}	
-	egress {
-		from_port         = var.app_default_port
-		to_port           = var.app_default_port
-		protocol          = var.tcp_protocol
-	}
+  egress {
+    from_port   = var.https_default_port
+    to_port     = var.https_default_port
+    protocol    = var.tcp_protocol
+    cidr_blocks = [var.internet_gateway]
+  }
+  egress {
+    from_port   = var.app_port
+    to_port     = var.app_port
+    protocol    = var.tcp_protocol
+    cidr_blocks = [var.internet_gateway]
+  }
+  egress {
+    from_port   = var.app_default_port
+    to_port     = var.app_default_port
+    protocol    = var.tcp_protocol
+    cidr_blocks = [var.internet_gateway]
+  }
   tags = {
     Name = var.sg_name
   }
@@ -113,14 +119,14 @@ resource "aws_instance" "jenkins_ec2" {
     Name = var.jenkins_ec2
   }
 
-  user_data = <<-EOF
+  user_data  = <<-EOF
               #!/bin/bash
 
 							sudo chmod 755 /etc/caddy/Caddyfile
 							sudo systemctl restart caddy
 							sudo systemctl status caddy --no-pager
               EOF
-	depends_on = [ aws_subnet.public_subnet, aws_security_group.sg ]
+  depends_on = [aws_subnet.public_subnet, aws_security_group.sg]
 }
 
 
@@ -134,5 +140,5 @@ data "aws_eip" "eip" {
 resource "aws_eip_association" "jenkins_eip_assoc" {
   instance_id   = aws_instance.jenkins_ec2.id
   allocation_id = data.aws_eip.eip.id
-	depends_on = [ aws_instance.jenkins_ec2 ]
+  depends_on    = [aws_instance.jenkins_ec2]
 }

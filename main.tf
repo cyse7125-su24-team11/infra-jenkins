@@ -2,6 +2,9 @@ provider "aws" {
   region = "us-east-1"
 }
 
+# Added network resources for Jenkins
+#
+#
 
 resource "aws_vpc" "vpc" {
   cidr_block = var.vpc_cidr_block
@@ -9,7 +12,6 @@ resource "aws_vpc" "vpc" {
     Name = var.vpc_name
   }
 }
-
 resource "aws_subnet" "public_subnet" {
   vpc_id     = aws_vpc.vpc.id
   cidr_block = var.public_subnet_cidr_block
@@ -95,6 +97,10 @@ resource "aws_security_group" "sg" {
   depends_on = [aws_vpc.vpc]
 
 }
+
+# Added EC2 Server and Configuration for Jenkins
+#
+#
 
 resource "aws_instance" "jenkins_ec2" {
   ami           = var.packer_image # Replace with your AMI ID

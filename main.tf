@@ -79,12 +79,12 @@ resource "aws_security_group" "sg" {
     protocol    = var.tcp_protocol
     cidr_blocks = [var.internet_gateway]
   }
-  egress {
-    from_port   = var.https_default_port
-    to_port     = var.https_default_port
-    protocol    = var.tcp_protocol
-    cidr_blocks = [var.internet_gateway]
-  }
+  # egress {
+  #   from_port   = var.https_default_port
+  #   to_port     = var.https_default_port
+  #   protocol    = var.tcp_protocol
+  #   cidr_blocks = [var.internet_gateway]
+  # }
   egress {
     from_port   = var.app_port
     to_port     = var.app_port

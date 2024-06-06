@@ -58,10 +58,10 @@ resource "aws_security_group" "sg" {
 	ingress {
     protocol    = var.tcp_protocol
 		cidr_blocks = [var.internet_gateway]
-		from_port   = 22
-		to_port     = 22
-	}
-	ingress {
+		from_port   = var.ssh_default_port
+		to_port     = var.ssh_default_port
+	}	
+  ingress {
     protocol    = var.tcp_protocol
 		cidr_blocks = [var.internet_gateway]
 		from_port   = var.https_default_port
@@ -122,9 +122,13 @@ resource "aws_instance" "jenkins_ec2" {
   user_data = <<-EOF
               #!/bin/bash
 
-							sudo chmod 755 /etc/caddy/Caddyfile
-							sudo systemctl restart caddy
-							sudo systemctl status caddy --no-pager
+              # Restart Caddy with custom Caddyfile  
+              sudo chmod 755 /etc/caddy/Caddyfile
+              sudo systemctl restart caddy
+              sudo systemctl status caddy --no-pager
+
+              # Restart Jenkins to apply the plugins
+              sudo systemctl restart jenkins
               EOF
 	depends_on = [ aws_subnet.public_subnet, aws_security_group.sg ]
 }

@@ -54,6 +54,10 @@ variable "app_default_port" {
   type    = number
   default = 80
 }
+variable "ssh_default_port" {
+  type    = number
+  default = 22
+}
 variable "internet_gateway" {
   type    = string
   default = "0.0.0.0/0"
@@ -68,7 +72,7 @@ variable "jenkins_key" {
 }
 variable "jenkins_ec2_instance_type" {
   type    = string
-  default = "t2.micro"
+  default = "t2.medium"
 }
 variable "jenkins_ec2" {
   type    = string

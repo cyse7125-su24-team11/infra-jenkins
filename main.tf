@@ -131,6 +131,11 @@ resource "aws_instance" "jenkins_ec2" {
               sudo systemctl restart jenkins
               EOF
 	depends_on = [ aws_subnet.public_subnet, aws_security_group.sg ]
+    root_block_device {
+    volume_size = 50
+    volume_type = "gp2"
+
+  }
 }
 
 

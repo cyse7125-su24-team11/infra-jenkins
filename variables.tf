@@ -64,7 +64,7 @@ variable "internet_gateway" {
 }
 variable "packer_image" {
   type    = string
-  default = "ami-0fbb55262cc968102"
+  default = "ami-0e0725bac36ba271c"
 }
 variable "jenkins_key" {
   type    = string
